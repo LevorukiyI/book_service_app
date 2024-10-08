@@ -1,3 +1,6 @@
 [submodule "book_service"]
 	path = book_service
 	url = https://github.com/LevorukiyI/book_service.git
+[submodule "auth_service"]
+	path = auth_service
+	url = https://github.com/LevorukiyI/auth_service.git
