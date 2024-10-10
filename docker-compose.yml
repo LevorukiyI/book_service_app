@@ -12,7 +12,7 @@ services:
       - book-service-db-data:/var/lib/postgresql/data
       - ./book_service_db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 3s
       retries: 2
@@ -49,7 +49,7 @@ services:
       - auth-service-db-data:/var/lib/postgresql/data
       - ./auth_service_db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 3s
       retries: 2
