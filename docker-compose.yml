@@ -1,6 +1,6 @@
 version: '3'
 services:
-  book_service_db:
+  book-service-db:
     image: postgres:17
     environment:
       POSTGRES_DB: book_db
@@ -20,24 +20,77 @@ services:
     networks:
       - app-network
 
-  book_service:
+  book-service:
     build:
       context: ./book_service 
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     depends_on:
-      book_service_db:
+      book-service-db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://book_service_db/book_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://book-service-db/book_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: "%Nw8Fm1qc*HXFh3mK}|9GOzATC}8LQrh"
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8080/actuator/health | grep 'UP' || exit 1"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 0s
     networks:
       - app-network
       - default
 
-  auth_service_db:
+  library-service-db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: library_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "%Nw8Fm1qc*HXFh3mK}|9GOzATC}8LQrh"
+    ports:
+      - "5434:5432"
+    volumes:
+      - library_service-db-data:/var/lib/postgresql/data
+      - ./library_service_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 2
+      start_period: 0s
+    networks:
+      - app-network
+
+  library-service:
+    build:
+      context: ./library_service 
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      book-service:
+        condition: service_healthy
+      library-service-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://library-service-db/library_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "%Nw8Fm1qc*HXFh3mK}|9GOzATC}8LQrh"
+      BOOK_SERVICE_BASE_URL: http://book-service:8080/books
+      BOOK_SERVICE_SECRET_API_KEY: "4Ai+5X3ZuK4J+T44sp0RDL48WeieeIq0boPRJb89MMU="
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8082/actuator/health | grep 'UP' || exit 1"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 0s
+    networks:
+      - app-network
+      - default
+
+  auth-service-db:
     image: postgres:17
     environment:
       POSTGRES_DB: auth_db
@@ -62,22 +115,25 @@ services:
       context: ./auth_service 
       dockerfile: Dockerfile
     ports:
-      - "8081:8080"
+      - "8081:8081"
     depends_on:
-      auth_service_db:
-        condition: service_healthy
+      library-service:
+          condition: service_healthy
+      auth-service-db:
+          condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://auth_service_db/auth_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-service-db/auth_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: "%Nw8Fm1qc*HXFh3mK}|9GOzATC}8LQrh"
+      LIBRARY_SERVICE_BASE_URL: http://library-service:8082
     networks:
       - app-network
       - default
 
-
 volumes:
   book-service-db-data:
   auth-service-db-data:
+  library_service-db-data:
 
 networks:
   app-network:
