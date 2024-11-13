@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="schema1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../auth_service/.idea/dataSources/f941edff-6fb9-4a01-b5f3-065a8834127b/storage_v2/_src_/database/auth_service_test_db.Kte1zA/schema/information_schema.FNRwLQ.zip!/" />
+      <root url="jar://$PROJECT_DIR$/../auth_service/.idea/dataSources/f941edff-6fb9-4a01-b5f3-065a8834127b/storage_v2/_src_/database/auth_service_test_db.Kte1zA/schema/pg_catalog.0S1ZNQ.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
